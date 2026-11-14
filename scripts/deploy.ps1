@@ -28,6 +28,18 @@ if (Test-Path $pidFile) {
     Remove-Item $pidFile -Force
 }
 
+# 1b. Por las dudas, liberar el puerto: si quedo una instancia huerfana (por ejemplo,
+# arrancada por un lanzador de java que no es el proceso real), se detiene igual.
+$enPuerto = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty OwningProcess -Unique
+foreach ($id in $enPuerto) {
+    Write-Host "Deteniendo proceso que ocupa el puerto $Port (PID $id)..."
+    Stop-Process -Id $id -Force -ErrorAction SilentlyContinue
+}
+for ($i = 0; $i -lt 30 -and (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue); $i++) {
+    Start-Sleep -Seconds 1
+}
+
 # 2. Copiar el nuevo jar a la carpeta de produccion
 Copy-Item $jarOrigen (Join-Path $ProdDir "catalogo-web.jar") -Force
 
@@ -35,7 +47,15 @@ Copy-Item $jarOrigen (Join-Path $ProdDir "catalogo-web.jar") -Force
 # No se usa Start-Process con -Redirect*: el proceso java heredaba el pipe de salida
 # del paso "powershell" de Jenkins y el build quedaba colgado esperando que se cerrara.
 # Win32_Process.Create lanza el proceso sin heredar handles; el log lo escribe Spring Boot.
-$java = (Get-Command java -ErrorAction Stop).Source
+# Se usa el java.exe REAL (java.home): el "java" del PATH puede ser el lanzador de Oracle
+# (javapath\java.exe), que arranca otro proceso hijo y haria que app.pid apunte al lanzador.
+$javaHome = (cmd /c "java -XshowSettings:properties -version 2>&1" |
+    Select-String '^\s*java\.home\s*=\s*(.+)$').Matches[0].Groups[1].Value.Trim()
+$java = Join-Path $javaHome "bin\java.exe"
+if (-not (Test-Path $java)) {
+    Write-Error "No se encontro java.exe (java.home = '$javaHome')"
+    exit 1
+}
 $log = Join-Path $ProdDir "app.log"
 $cmd = "`"$java`" -jar catalogo-web.jar --server.port=$Port --logging.file.name=`"$log`""
 $r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create `
