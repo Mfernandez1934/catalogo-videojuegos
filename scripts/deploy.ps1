@@ -31,13 +31,19 @@ if (Test-Path $pidFile) {
 # 2. Copiar el nuevo jar a la carpeta de produccion
 Copy-Item $jarOrigen (Join-Path $ProdDir "catalogo-web.jar") -Force
 
-# 3. Iniciar la nueva version en segundo plano
-$p = Start-Process -FilePath "java" `
-    -ArgumentList "-jar", "catalogo-web.jar", "--server.port=$Port" `
-    -WorkingDirectory $ProdDir `
-    -RedirectStandardOutput (Join-Path $ProdDir "app.log") `
-    -RedirectStandardError (Join-Path $ProdDir "app-error.log") `
-    -PassThru
-$p.Id | Out-File -FilePath $pidFile -Encoding ascii
+# 3. Iniciar la nueva version en segundo plano, DESACOPLADA de Jenkins.
+# No se usa Start-Process con -Redirect*: el proceso java heredaba el pipe de salida
+# del paso "powershell" de Jenkins y el build quedaba colgado esperando que se cerrara.
+# Win32_Process.Create lanza el proceso sin heredar handles; el log lo escribe Spring Boot.
+$java = (Get-Command java -ErrorAction Stop).Source
+$log = Join-Path $ProdDir "app.log"
+$cmd = "`"$java`" -jar catalogo-web.jar --server.port=$Port --logging.file.name=`"$log`""
+$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create `
+    -Arguments @{ CommandLine = $cmd; CurrentDirectory = $ProdDir }
+if ($r.ReturnValue -ne 0) {
+    Write-Error "No se pudo iniciar la app (Win32_Process.Create devolvio $($r.ReturnValue))"
+    exit 1
+}
+$r.ProcessId | Out-File -FilePath $pidFile -Encoding ascii
 
-Write-Host "Version desplegada en $ProdDir (PID $($p.Id), puerto $Port)"
+Write-Host "Version desplegada en $ProdDir (PID $($r.ProcessId), puerto $Port)"
