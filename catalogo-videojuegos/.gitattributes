@@ -1,0 +1,4 @@
+# Los scripts de bash deben tener fin de linea LF aunque se editen en Windows
+*.sh text eol=lf
+*.ps1 text eol=crlf
+Jenkinsfile text eol=lf

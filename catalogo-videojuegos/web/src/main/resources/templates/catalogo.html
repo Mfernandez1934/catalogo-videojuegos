@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de Videojuegos</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; background: #f4f5f7; color: #222; }
+        header { background: #263238; color: #fff; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header a { color: #fff; background: #43a047; padding: 8px 14px; border-radius: 6px; text-decoration: none; }
+        main { padding: 24px 32px; }
+        form.filtros { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        form.filtros input, form.filtros select, form.filtros button { padding: 8px; font-size: 1rem; }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+        .chip { background: #e0e0e0; border-radius: 14px; padding: 4px 12px; font-size: .85rem; text-decoration: none; color: #222; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+        .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+        .card img { width: 100%; height: 250px; object-fit: cover; background: #ccc; display: block; }
+        .card .info { padding: 10px; }
+        .card h3 { margin: 0 0 4px; font-size: 1rem; }
+        .card p { margin: 2px 0; font-size: .85rem; color: #555; }
+        .mensaje { background: #c8e6c9; padding: 10px; border-radius: 6px; margin-bottom: 16px; }
+        footer { padding: 16px 32px; color: #777; font-size: .8rem; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Catálogo de Videojuegos</h1>
+    <a th:href="@{/juegos/nuevo}">+ Registrar juego</a>
+</header>
+<main>
+    <div class="mensaje" th:if="${mensaje}" th:text="${mensaje}">Mensaje</div>
+
+    <form class="filtros" th:action="@{/}" method="get">
+        <input type="text" name="q" th:value="${q}" placeholder="Buscar por nombre o plataforma">
+        <select name="genero">
+            <option value="">Todos los géneros</option>
+            <option th:each="g : ${generos}" th:value="${g}" th:text="${g.nombreVisible}"
+                    th:selected="${g == generoSeleccionado}">Género</option>
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <div class="chips">
+        <a class="chip" th:each="entrada : ${conteo}"
+           th:href="@{/(genero=${entrada.key})}"
+           th:text="${entrada.key.nombreVisible + ' (' + entrada.value + ')'}">Género (n)</a>
+    </div>
+
+    <p th:if="${#lists.isEmpty(juegos)}">No hay juegos que coincidan con la búsqueda.</p>
+
+    <div class="grid">
+        <div class="card" th:each="juego : ${juegos}">
+            <img th:src="${juego.imagenUrl != null and !#strings.isEmpty(juego.imagenUrl) ? juego.imagenUrl : 'https://placehold.co/300x400?text=Sin+imagen'}"
+                 th:alt="${juego.nombre}">
+            <div class="info">
+                <h3 class="nombre-juego" th:text="${juego.nombre}">Nombre</h3>
+                <p th:text="${juego.genero.nombreVisible + ' · ' + juego.anio}">Género · Año</p>
+                <p th:text="${juego.plataforma}">Plataforma</p>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>Programación Avanzada 2026 - Entregable 4 (CI/CD)</footer>
+</body>
+</html>
