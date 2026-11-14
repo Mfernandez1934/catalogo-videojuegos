@@ -19,12 +19,12 @@ Entrega: **martes 17/11 a las 12:00** por Moodle. Pueden ir tachando los pasos a
   git init
   git add .
   git commit -m "Estructura inicial: modulos juegos, catalogo y web + Jenkinsfile"
-  git branch -M main
+  git branch -M master
   git remote add origin https://github.com/USUARIO/catalogo-videojuegos.git
-  git push -u origin main
+  git push -u origin master
   ```
 - [ ] **A5.** Agregar al compañero como colaborador: Settings → Collaborators.
-- [ ] **A6.** (Recomendado) Proteger `main`: Settings → Branches → requerir pull request. Así se puede mostrar el trabajo colaborativo.
+- [ ] **A6.** (Recomendado) Proteger `master`: Settings → Branches → requerir pull request. Así se puede mostrar el trabajo colaborativo.
 
 ## Parte B — Jenkins (integrante 2)
 
@@ -43,7 +43,7 @@ Entrega: **martes 17/11 a las 12:00** por Moodle. Pueden ir tachando los pasos a
 - [ ] **B4.** Crear el job: New Item → nombre `catalogo-videojuegos` → **Pipeline**.
   - Definition: *Pipeline script from SCM*.
   - SCM: Git. Repository URL: la del repo. Si es privado, agregar credenciales con un *Personal Access Token* de GitHub.
-  - Branch: `*/main`.
+  - Branch: `*/master` (la rama del repo se llama `master`).
   - Script Path: `Jenkinsfile`.
 - [ ] **B5.** **Build Now** a mano la primera vez. Hace falta para que Jenkins registre el `pollSCM` del Jenkinsfile. Después se dispara solo.
 - [ ] **B6.** Abrir http://localhost:8081: la app ya corre desde la carpeta de producción.
@@ -53,7 +53,7 @@ Entrega: **martes 17/11 a las 12:00** por Moodle. Pueden ir tachando los pasos a
 
 ## Parte C — Trabajo colaborativo (ambos)
 
-- [ ] **C1.** Cada uno hace al menos un cambio en una rama propia (`feature/...`), lo integra con un pull request a `main` y deja que Jenkins lo construya. Ideas:
+- [ ] **C1.** Cada uno hace al menos un cambio en una rama propia (`feature/...`), lo integra con un pull request a `master` y deja que Jenkins lo construya. Ideas:
   - Integrante 1: agregar un campo "descripción" al juego, con su prueba.
   - Integrante 2: agregar un filtro por plataforma en el catálogo, con su prueba.
 - [ ] **C2.** Commits con mensajes claros de **los dos**: el historial de GitHub cuenta como evidencia.

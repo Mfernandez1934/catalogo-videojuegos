@@ -4,7 +4,7 @@ Completar a medida que aparecen (sirve para la sección "d" del informe). Adjunt
 
 | # | Fecha | Etapa | Error (mensaje) | Causa | Solución | Captura |
 |---|---|---|---|---|---|---|
-| 1 | | | | | | |
+| 1 | 14/11 | Prueba manual de la app (previo a Jenkins) | Después de registrar un juego, la redirección iba a `/;jsessionid=...` y daba 404 | En el primer request sin cookie, Tomcat agrega el id de sesión a la URL (URL rewriting) al hacer `redirect:/`, y la ruta resultante no matchea ningún controlador | Se agregó `server.servlet.session.tracking-modes=cookie` en `web/src/main/resources/application.properties` para usar solo cookies | |
 | 2 | | | | | | |
 | 3 | | | | | | |
 
