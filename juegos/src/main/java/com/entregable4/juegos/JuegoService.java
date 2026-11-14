@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JuegoService {
 
-    public static final int ANIO_MINIMO = 1800;
+    public static final int ANIO_MINIMO = 1950;
 
     private final JuegoRepository repository;
 
