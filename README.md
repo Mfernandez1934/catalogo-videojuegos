@@ -82,3 +82,7 @@ La configuración de Jenkins paso a paso está en [PASO_A_PASO.md](PASO_A_PASO.m
 4. Mostrar que http://localhost:8081 **sigue funcionando con la versión anterior**.
 5. Mostrar el reporte de pruebas en Jenkins (Test Result), que indica qué prueba falló y por qué.
 6. Corregir el error con `git revert HEAD && git push`. El pipeline vuelve a verde y se despliega.
+
+## Flujo de trabajo
+
+Cada cambio se hace en una rama `feature/...` y se integra a `master` con un pull request en GitHub. Jenkins construye `master` automáticamente con cada commit nuevo.
